@@ -190,7 +190,7 @@ $app->get("/admin/forgot/sent", function(){
 	]);
 	$page->setTpl("forgot-sent");
 
-})
+});
 
 $app->get("/admin/forgot/reset"function(){
 		
@@ -320,6 +320,22 @@ $app->get("/admin/categories/:idcategory", function($idcategory)
 	exit;
 
 }
+
+$app->get("/categories/:idcategory", function($idcategory){
+
+	$category = new Category();
+
+	$category->get((int)$idcategory);
+
+	$page = new Page();
+
+    $page->setTpl("category", [
+    	'category'=>$category->getValues(),
+    	'products'=>[]
+
+    ]);
+
+});
 
 $app->run();
  
