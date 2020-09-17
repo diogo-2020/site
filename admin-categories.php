@@ -3,6 +3,7 @@
 use \Hcode\PageAdmin;
 use \Hcode\Model\User;
 use \Hcode\Model\Category;
+use |Hcode\Model\Product;
 
 $app->get("/admin/categories", function(){
 
@@ -12,7 +13,7 @@ $app->get("/admin/categories", function(){
 
 	$page = new PageAdmin();
 
-	$page->setTTpl("categores", [
+	$page->setTpl("categores", [
 
 		'categories'=>$categories
 
@@ -26,7 +27,7 @@ $app->get("/admin/categories/create", function(){
 
 	$page = new PageAdmin();
 
-	$page->setTTpl("categores-create");
+	$page->setTpl("categores-create");
 
 });
 
@@ -77,6 +78,8 @@ $app->post("/admin/categories/:idcategory/delete", function($idcategory)
 
 	]);
 
+});
+
 $app->get("/admin/categories/:idcategory", function($idcategory)
 {	
 	User::verifyLogin();
@@ -85,7 +88,7 @@ $app->get("/admin/categories/:idcategory", function($idcategory)
 
 	$category->get((int)$idcategory);
 
-	$cactegory->setData($_POST);
+	$category->setData($_POST);
 
 	$category->save();
 
@@ -93,23 +96,57 @@ $app->get("/admin/categories/:idcategory", function($idcategory)
 	exit;
 
 });
+$app->get("/admin/categories/:idcategory/products",function($idcategory){
 
-$app->get("/categories/:idcategory", function($idcategory){
+	User::verifyLogin();
 
 	$category = new Category();
 
 	$category->get((int)$idcategory);
 
-	$page = new Page();
+	$page = new PageAdmin();
 
-    $page->setTpl("category", [
+    $page->setTpl("categories-prodducts", [
     	'category'=>$category->getValues(),
-    	'products'=>[]
+		'productsRelated'=>$category->getProducts(),
+		'productsNotRelated'=>$category->getProducts(false)
 
     ]);
 
+
 });
+$app->get("/admin/categories/:idcategory/products/:idproduct/add",function($idcategory, $idproduct){
 
+	User::verifyLogin();
 
+	$category = new Category();
 
+	$category->get((int)$idcategory);
+
+	$product = new Product();
+
+	$product->get((int)$idproduct);
+
+	$category->addProduct($product);
+	 
+	header("Location: /admin/categories/".$idcategory."/proucts");
+	exit;
+});
+$app->get("/admin/categories/:idcategory/products/:idproduct/remove",function($idcategory, $idproduct){
+
+	User::verifyLogin();
+
+	$category = new Category();
+
+	$category->get((int)$idcategory);
+
+	$product = new Product();
+
+	$product->get((int)$idproduct);
+
+	$category->removeProduct($product);
+	 
+	header("Location: /admin/categories/".$idcategory."/proucts");
+	exit;
+});
  ?>

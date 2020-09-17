@@ -59,7 +59,7 @@ class Category extends Model{
 
 		$html = [];
 
-		foreach ($categories as $row) {
+		foreach ($category as $row) {
 			array_push($html,'<li><a href="/categories/'.$row['idcategory'].'">'.$row['descategory'].'</a></li>');
 		}
 
@@ -67,8 +67,62 @@ class Category extends Model{
 
 	}
 
-	
+	public function getProducts($related = true)
+	{
+		$sql = new Sql();
 
+		if ($related === true){
+
+			return $sql->select("
+				SELECT * FROM tb_products WHERE id products IN(
+					SELECT a.idproduct 
+					FROM tb_products a 
+					INNER JOIN tb_productscategories bb ON a.idproduct = b.idproduct
+					WHERE b.idcategory = :idcategory
+				);
+			",[
+				':idcategory'=>$this->getcategory()
+			]);
+		}else{
+				$sql->select("
+				SELECT * FROM tb_products WHERE id products NOT IN(
+					SELECT a.idproduct 
+					FROM tb_products a 
+					INNER JOIN tb_productscategories bb ON a.idproduct = b.idproduct
+					WHERE b.idcategory = :idcategory
+				",[
+					':idcategory'=>$this->getcategory()
+				]);
+
+		}
+
+
+
+	}
+	public function addProduct(Product $product)
+	{
+		$sql = new Sql();
+
+		$sql->query("INSERT INTO tb_productscategories (idcategory, idproduct)VALUES(:idcategory, :idproduts)", [
+				':idcategory'=>$this->getidcategory(),
+				':idproduct'=>$product->getidproduct()
+		]);
+
+
+
+	}
+	public function removeProduct(Product $product)
+	{
+		$sql = new Sql();
+
+		$sql->query("DELETE FROM tb_productscategories WHERE idcategory = :idcategory AND idproduct = :idproduts)", [
+				':idcategory'=>$this->getidcategory(),
+				':idproduct'=>$product->getidproduct()
+		]);
+
+
+
+	}
 }
 
  ?>
